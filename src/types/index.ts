@@ -79,3 +79,18 @@ export interface CommentListRes {
   uploads: UploadsShowDto[];
   children: CommentListRes[];
 }
+
+export interface AdminCreateReq {
+  name: string;
+  userId: string;
+  password: string;
+  passwordCheck: string;
+  email: string;
+  phone: string;
+}
+
+export interface AdminLoginRes {
+  adminIdx: number;
+  userId: string;
+  token: TokenDto;
+}

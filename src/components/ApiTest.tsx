@@ -132,7 +132,7 @@ export const ApiTest = () => {
     <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800">
-          📋 ToyProject 게시판{" "}
+          📋 ToyProject 게시판
         </h2>
         <button
           onClick={() => navigate("/write")}
@@ -142,52 +142,52 @@ export const ApiTest = () => {
         </button>
       </div>
 
-      {/* 로그인 및 액션 버튼 영역 */}
-      <div className="mb-10 p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-        <p className="text-sm font-medium text-gray-500 mb-4 text-center">
-          {isLoggedIn
-            ? "✅ 로그인 상태입니다"
-            : "🔑 계정을 선택해 로그인하세요"}
-        </p>
-
-        <div className="flex flex-wrap gap-4 justify-center">
-          {!isLoggedIn ? (
-            <>
-              {/* 로그인 전: 로그인 버튼들 표시 */}
+      {/* 🔹 로그인 및 액션 버튼 영역 (깔끔하게 통합됨) */}
+      <div className="mb-10 p-6 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+        {isLoggedIn ? (
+          <div className="flex flex-col items-center">
+            <p className="text-sm font-medium text-indigo-600 mb-4">
+              ✅ {localStorage.getItem("role")} 권한으로 로그인 중입니다.
+            </p>
+            <div className="flex gap-4">
               <button
-                onClick={handleAdminLogin}
-                className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition text-sm font-bold shadow"
+                onClick={handleLogout}
+                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-bold shadow"
               >
-                🔑 관리자 로그인
+                🔓 로그아웃
               </button>
               <button
-                onClick={handleMemberLogin}
-                className="px-6 py-2 bg-gray-800 text-white rounded hover:bg-black transition text-sm font-bold shadow"
+                onClick={fetchPosts}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow"
               >
-                👤 멤버 로그인
+                🔄 목록 새로고침
               </button>
-            </>
-          ) : (
-            /* 로그인 후: 로그아웃 버튼 표시 */
-            <button
-              onClick={handleLogout}
-              className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm font-bold shadow"
-            >
-              🔓 로그아웃
-            </button>
-          )}
-
-          {/* 목록 새로고침은 항상 표시 */}
-          <button
-            onClick={fetchPosts}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-bold shadow"
-          >
-            🔄 목록 새로고침
-          </button>
-        </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <p className="text-gray-500 mb-4">
+              서비스를 이용하려면 로그인이 필요합니다.
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => navigate("/login")}
+                className="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-bold shadow-lg"
+              >
+                🔑 로그인 / 회원가입 하러가기
+              </button>
+              <button
+                onClick={fetchPosts}
+                className="px-8 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition font-bold"
+              >
+                🔄 비회원으로 목록 보기
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* 테이블 영역 (기존과 동일) */}
+      {/* 🔹 테이블 영역 (기존 유지) */}
       {loading ? (
         <div className="flex justify-center py-20 text-gray-500 animate-pulse">
           데이터 로딩 중...
