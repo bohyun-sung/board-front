@@ -5,7 +5,21 @@ export const Login = () => {
 
   // 구글 OAuth2 엔드포인트
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8090/oauth2/authorization/google";
+    // 1. 현재 프론트엔드가 실행 중인 호스트 주소를 확인
+    // 배포 환경이면 https://bohyun-board.duckdns.org 가 됩니다.
+    const currentHost = window.location.origin;
+
+    // 2. API 베이스 URL 설정 (Vite 환경 변수 활용)
+    // 로컬 개발 시에는 http://localhost:8090, 배포 시에는 /api 등으로 설정된 값을 읽습니다.
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8090";
+
+    // 3. 배포 환경(Nginx 프록시 사용 시)인지 로컬인지 판단하여 주소 생성
+    const loginUrl = apiBaseUrl.startsWith("http")
+      ? `${apiBaseUrl}/oauth2/authorization/google` // 로컬: 직접 주소 호출
+      : `${currentHost}${apiBaseUrl}/oauth2/authorization/google`; // 배포: 도메인 + /api/...
+
+    window.location.href = loginUrl;
   };
 
   return (
