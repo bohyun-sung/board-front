@@ -119,6 +119,30 @@ export const CommentItem = ({
     }
   };
 
+  const handleDeleteClick = async () => {
+    if (!window.confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
+
+    try {
+      // commentApi.deleteComment 호출
+      const res: any = await commentApi.deleteComment(comment.commentIdx);
+
+      // 백엔드 Response.success() 응답 처리
+      if (res.data.result || res.status === 200) {
+        alert("댓글이 삭제되었습니다.");
+        refreshComments(); // 목록 새로고침을 통해 deleted 상태 반영
+      }
+    } catch (err: any) {
+      const status = err.response?.status;
+      if (status === 410) {
+        alert("이미 삭제된 댓글입니다.");
+      } else if (status === 404) {
+        alert("댓글을 찾을 수 없습니다.");
+      } else {
+        alert(err.response?.data?.fail?.message || "삭제 권한이 없습니다.");
+      }
+    }
+  };
+
   return (
     <div className="border-b py-4 last:border-0">
       {/* ... 헤더 생략 (수정 버튼 클릭 시 startEditing 호출하도록 변경) ... */}
@@ -195,21 +219,26 @@ export const CommentItem = ({
       {/* A. 헤더 영역: 닉네임, 날짜, 수정 버튼 */}
       <div className="flex justify-between text-sm">
         <div className="flex gap-2 items-center">
-          <span className="font-bold text-blue-600">{comment.nickname}</span>
-          {!comment.isDeleted && isMyComment && !isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="text-[10px] bg-gray-100 px-2 py-0.5 rounded hover:bg-gray-200 text-gray-600"
-            >
-              수정
-            </button>
+          <span className="font-bold text-blue-600">
+            {comment.deleted ? "(삭제)" : comment.nickname}
+          </span>
+
+          {/* 삭제되지 않은 내 댓글일 때만 수정/삭제 버튼 노출 */}
+          {!comment.deleted && isMyComment && !isEditing && (
+            <div className="flex gap-1">
+              <button onClick={() => setIsEditing(true)} className="...">
+                수정
+              </button>
+              <button onClick={handleDeleteClick} className="...">
+                삭제
+              </button>
+            </div>
           )}
         </div>
         <span className="text-gray-400">
           {new Date(comment.rgdt).toLocaleString()}
         </span>
       </div>
-
       {/* B. 본문 영역: 일반 모드 vs 수정 모드 */}
       {!isEditing ? (
         <>
