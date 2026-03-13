@@ -124,6 +124,7 @@ export const uploadApi = {
 };
 
 export const commentApi = {
+  // 1. 댓글 생성
   createComment: (
     postIdx: number,
     data: {
@@ -135,7 +136,24 @@ export const commentApi = {
     return api.post(`/api/posts/${postIdx}/comments`, data);
   },
 
+  // 2. 댓글 목록 조회
   getComments: (postIdx: number) => {
     return api.get(`/api/posts/${postIdx}/comments`);
+  },
+
+  // 3. 댓글 수정 (추가됨!)
+  updateComment: (
+    commentIdx: number,
+    data: {
+      content: string;
+      uploadIdxs: number[];
+    },
+  ) => {
+    return api.patch(`/api/comments/${commentIdx}`, data);
+  },
+
+  // 4. 댓글 삭제 (추가됨!)
+  deleteComment: (commentIdx: number) => {
+    return api.delete(`/api/comments/${commentIdx}`);
   },
 };

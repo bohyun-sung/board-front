@@ -250,6 +250,7 @@ export const PostDetail = () => {
             key={comment.commentIdx}
             comment={comment}
             onReplySubmit={handleReplySubmit}
+            refreshComments={fetchComments}
           />
         ))}
       </div>
