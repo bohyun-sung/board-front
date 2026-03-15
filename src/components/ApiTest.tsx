@@ -49,6 +49,35 @@ export const ApiTest = () => {
     }
   };
 
+  const getBoardTypeBadge = (type: string) => {
+    switch (type) {
+      case "NOTICE":
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
+            공지
+          </span>
+        );
+      case "NEWS":
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600">
+            뉴스
+          </span>
+        );
+      case "FREE":
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600">
+            자유
+          </span>
+        );
+      default:
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
+            {type}
+          </span>
+        );
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-8">
@@ -81,7 +110,7 @@ export const ApiTest = () => {
                 onClick={fetchPosts}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow"
               >
-                🔄 목록 새로고침
+                🔄 게시물 불러오기
               </button>
             </div>
           </div>
@@ -119,7 +148,10 @@ export const ApiTest = () => {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
-                  ID
+                  번호
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
+                  유형
                 </th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
                   제목
@@ -139,6 +171,9 @@ export const ApiTest = () => {
                   >
                     <td className="px-6 py-4 text-sm text-gray-400 font-mono">
                       {post.postIdx}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      {getBoardTypeBadge(post.boardType)}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-800 group-hover:text-blue-600">
                       {post.title}
