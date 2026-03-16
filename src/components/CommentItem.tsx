@@ -145,91 +145,24 @@ export const CommentItem = ({
 
   return (
     <div className="border-b py-4 last:border-0">
-      {/* ... 헤더 생략 (수정 버튼 클릭 시 startEditing 호출하도록 변경) ... */}
-      <button onClick={startEditing}>수정</button>
-
-      {!isEditing ? (
-        /* 일반 모드 UI */
-        <>
-          <p className="mt-2">{comment.content}</p>
-          {/* 기존 이미지 렌더링 코드 유지 */}
-        </>
-      ) : (
-        /* 수정 모드 UI */
-        <div className="mt-2 p-3 bg-blue-50 rounded-lg">
-          <textarea
-            className="w-full p-2 text-sm border rounded"
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-          />
-
-          {/* 📸 현재 유지 중인 기존 이미지 미리보기 및 삭제 */}
-          <div className="flex gap-2 mt-2 overflow-x-auto py-2">
-            {currentUploads.map((file: any) => (
-              <div key={file.uploadIdx} className="relative shrink-0">
-                <img
-                  src={file.uploadUrl}
-                  className="w-20 h-20 object-cover rounded border"
-                />
-                <button
-                  onClick={() => handleRemoveExistingFile(file.uploadIdx)}
-                  className="absolute -top-1 -right-1 bg-black/70 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-
-            {/* 새로 추가할 파일 미리보기 (선택 사항) */}
-            {editFiles.map((file, idx) => (
-              <div key={idx} className="relative shrink-0 opacity-70">
-                <img
-                  src={URL.createObjectURL(file)}
-                  className="w-20 h-20 object-cover rounded border border-blue-400"
-                />
-                <div className="absolute bottom-0 bg-blue-500 text-[8px] text-white w-full text-center">
-                  NEW
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-between items-center mt-2">
-            <input
-              type="file"
-              multiple
-              onChange={(e) => setEditFiles(Array.from(e.target.files || []))}
-              className="text-xs"
-            />
-            <div className="flex gap-2">
-              <button onClick={() => setIsEditing(false)} className="text-xs">
-                취소
-              </button>
-              <button
-                onClick={handleUpdateClick}
-                className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold"
-              >
-                수정완료
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* A. 헤더 영역: 닉네임, 날짜, 수정 버튼 */}
+      {/* 상단: 작성자 정보 및 관리 버튼 */}
       <div className="flex justify-between text-sm">
         <div className="flex gap-2 items-center">
           <span className="font-bold text-blue-600">
-            {comment.deleted ? "(삭제)" : comment.nickname}
+            {comment.deleted ? "(삭제된 댓글)" : comment.nickname}
           </span>
-
-          {/* 삭제되지 않은 내 댓글일 때만 수정/삭제 버튼 노출 */}
           {!comment.deleted && isMyComment && !isEditing && (
-            <div className="flex gap-1">
-              <button onClick={() => setIsEditing(true)} className="...">
+            <div className="flex gap-2">
+              <button
+                onClick={startEditing}
+                className="text-gray-400 hover:text-blue-600 text-xs"
+              >
                 수정
               </button>
-              <button onClick={handleDeleteClick} className="...">
+              <button
+                onClick={handleDeleteClick}
+                className="text-gray-400 hover:text-red-600 text-xs"
+              >
                 삭제
               </button>
             </div>
@@ -239,32 +172,26 @@ export const CommentItem = ({
           {new Date(comment.rgdt).toLocaleString()}
         </span>
       </div>
-      {/* B. 본문 영역: 일반 모드 vs 수정 모드 */}
+
+      {/* 중단: 본문 (일반 모드 vs 수정 모드) */}
       {!isEditing ? (
         <>
-          <p className="mt-2 text-gray-800">{comment.content}</p>
-
-          {/* 업로드 이미지 목록 */}
+          <p className="mt-2 text-gray-800 whitespace-pre-wrap">
+            {comment.content}
+          </p>
           {comment.uploads && comment.uploads.length > 0 && (
-            <div className="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
               {comment.uploads.map((file: any) => (
-                <div key={file.uploadIdx} className="shrink-0">
-                  <img
-                    src={file.uploadUrl}
-                    alt="첨부이미지"
-                    className="w-32 h-32 object-cover rounded-lg border border-gray-200 shadow-sm"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://via.placeholder.com/150?text=No+Image";
-                    }}
-                  />
-                </div>
+                <img
+                  key={file.uploadIdx}
+                  src={file.uploadUrl}
+                  className="w-32 h-32 object-cover rounded-lg border shadow-sm"
+                  alt="첨부"
+                />
               ))}
             </div>
           )}
-
-          {/* 답글 버튼 */}
-          {!comment.isDeleted && (
+          {!comment.deleted && (
             <button
               onClick={() => setIsReplyOpen(!isReplyOpen)}
               className="mt-2 text-xs text-blue-500 hover:underline"
@@ -274,7 +201,6 @@ export const CommentItem = ({
           )}
         </>
       ) : (
-        /* C. 수정 입력 영역 (수정 모드 활성화 시) */
         <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
           <textarea
             className="w-full border rounded p-2 text-sm outline-none resize-none bg-white"
@@ -282,28 +208,41 @@ export const CommentItem = ({
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
           />
+          {/* 이미지 편집 미리보기 */}
+          <div className="flex gap-2 mt-2 overflow-x-auto py-2">
+            {currentUploads.map((file: any) => (
+              <div key={file.uploadIdx} className="relative shrink-0">
+                <img
+                  src={file.uploadUrl}
+                  className="w-20 h-20 object-cover rounded border"
+                  alt="기존"
+                />
+                <button
+                  onClick={() => handleRemoveExistingFile(file.uploadIdx)}
+                  className="absolute -top-1 -right-1 bg-black/70 text-white rounded-full w-5 h-5 text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
           <div className="flex justify-between items-center mt-2">
             <input
               type="file"
               multiple
               onChange={(e) => setEditFiles(Array.from(e.target.files || []))}
-              className="text-[11px] text-gray-500"
-              accept="image/*"
+              className="text-[11px]"
             />
             <div className="flex gap-2">
               <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setEditFiles([]);
-                  setEditContent(comment.content);
-                }}
-                className="px-3 py-1 bg-white border text-xs rounded hover:bg-gray-50"
+                onClick={() => setIsEditing(false)}
+                className="px-3 py-1 bg-white border text-xs rounded"
               >
                 취소
               </button>
               <button
                 onClick={handleUpdateClick}
-                className="px-3 py-1 bg-blue-600 text-white text-xs rounded font-bold hover:bg-blue-700"
+                className="px-3 py-1 bg-blue-600 text-white text-xs rounded font-bold"
               >
                 수정완료
               </button>
@@ -312,10 +251,10 @@ export const CommentItem = ({
         </div>
       )}
 
-      {/* D. 답글 입력 영역 (isReplyOpen이 true일 때) */}
+      {/* 하단: 답글 입력창 (열려있을 때만) */}
       {isReplyOpen && (
-        <div className="mt-3 pl-4 border-l-2 border-blue-100 bg-gray-50/50 p-3 rounded-r-lg">
-          {/* 선택한 파일 미리보기 */}
+        <div className="mt-3 pl-4 border-l-2 border-blue-100 bg-gray-50 p-3 rounded-r-lg">
+          {/* 📸 [추가] 답글용 이미지 미리보기 리스트 */}
           {replyFiles.length > 0 && (
             <div className="flex gap-2 mb-3 overflow-x-auto py-1">
               {replyFiles.map((file, idx) => (
@@ -343,23 +282,24 @@ export const CommentItem = ({
               className="flex-1 border rounded px-2 py-1 text-sm outline-none bg-white"
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="답글 내용을 입력하세요..."
+              placeholder="답글을 입력하세요..."
             />
             <button
               onClick={handleReplyClick}
-              className="bg-blue-600 text-white px-3 py-1 rounded text-sm shrink-0 font-bold"
+              className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-bold shrink-0"
             >
               등록
             </button>
           </div>
 
+          {/* 📸 [추가] 답글용 사진 추가 버튼 */}
           <div className="mt-2">
             <label className="inline-block cursor-pointer bg-white border border-gray-300 px-2 py-1 rounded text-[11px] font-medium text-gray-600 hover:bg-gray-50">
               📷 사진 추가 ({replyFiles.length})
               <input
                 type="file"
                 multiple
-                onChange={handleReplyFileChange}
+                onChange={handleReplyFileChange} // 기존에 선언된 핸들러 사용
                 className="hidden"
                 accept="image/*"
               />
@@ -368,7 +308,7 @@ export const CommentItem = ({
         </div>
       )}
 
-      {/* E. 자식 댓글 재귀 호출 */}
+      {/* 자식 댓글 재귀 호출 */}
       {comment.children && comment.children.length > 0 && (
         <div className="ml-6 mt-2 border-l-2 border-gray-100 pl-4">
           {comment.children.map((child: any) => (
