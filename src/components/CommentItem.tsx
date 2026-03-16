@@ -143,6 +143,16 @@ export const CommentItem = ({
     }
   };
 
+  // 파일 추가 핸들러 함수
+  const handleEditFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
+
+    setEditFiles((prev) => [...prev, ...selectedFiles]);
+
+    e.target.value = "";
+  };
+
   return (
     <div className="border-b py-4 last:border-0">
       {/* 상단: 작성자 정보 및 관리 버튼 */}
@@ -201,6 +211,7 @@ export const CommentItem = ({
           )}
         </>
       ) : (
+        /* --- 🎨 수정 모드 UI (이미지 편집 로직 포함) --- */
         <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
           <textarea
             className="w-full border rounded p-2 text-sm outline-none resize-none bg-white"
@@ -208,41 +219,72 @@ export const CommentItem = ({
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
           />
-          {/* 이미지 편집 미리보기 */}
+
+          {/* 📸 이미지 미리보기 영역 (기존 이미지 + 새로 추가될 이미지) */}
           <div className="flex gap-2 mt-2 overflow-x-auto py-2">
+            {/* 1. 현재 유지 중인 기존 이미지 (삭제 가능) */}
             {currentUploads.map((file: any) => (
               <div key={file.uploadIdx} className="relative shrink-0">
                 <img
                   src={file.uploadUrl}
                   className="w-20 h-20 object-cover rounded border"
-                  alt="기존"
+                  alt="기존 이미지"
                 />
                 <button
                   onClick={() => handleRemoveExistingFile(file.uploadIdx)}
-                  className="absolute -top-1 -right-1 bg-black/70 text-white rounded-full w-5 h-5 text-xs"
+                  className="absolute -top-1 -right-1 bg-black/70 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            {/* 2. 새로 선택한 파일 미리보기 */}
+            {editFiles.map((file, idx) => (
+              <div key={idx} className="relative shrink-0 opacity-80">
+                <img
+                  src={URL.createObjectURL(file)}
+                  className="w-20 h-20 object-cover rounded border border-blue-400"
+                  alt="새 이미지"
+                />
+                <div className="absolute bottom-0 bg-blue-500 text-[8px] text-white w-full text-center py-0.5">
+                  NEW
+                </div>
+                <button
+                  onClick={() =>
+                    setEditFiles((prev) => prev.filter((_, i) => i !== idx))
+                  }
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
                 >
                   ✕
                 </button>
               </div>
             ))}
           </div>
+
           <div className="flex justify-between items-center mt-2">
+            {/* ⬇️ 이 부분을 아래 코드로 교체하세요 ⬇️ */}
             <input
               type="file"
               multiple
-              onChange={(e) => setEditFiles(Array.from(e.target.files || []))}
-              className="text-[11px]"
+              onChange={handleEditFileChange} // ← (e) => setEditFiles(...) 대신 미리 선언한 핸들러 연결!
+              className="text-[11px] text-gray-500"
+              accept="image/*"
             />
             <div className="flex gap-2">
               <button
-                onClick={() => setIsEditing(false)}
-                className="px-3 py-1 bg-white border text-xs rounded"
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditFiles([]);
+                  setEditContent(comment.content);
+                }}
+                className="px-3 py-1 bg-white border text-xs rounded hover:bg-gray-50"
               >
                 취소
               </button>
               <button
                 onClick={handleUpdateClick}
-                className="px-3 py-1 bg-blue-600 text-white text-xs rounded font-bold"
+                className="px-3 py-1 bg-blue-600 text-white text-xs rounded font-bold hover:bg-blue-700"
               >
                 수정완료
               </button>
