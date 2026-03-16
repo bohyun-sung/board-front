@@ -12,9 +12,16 @@ export const OAuthCallback = () => {
     const memberIdx = params.get("memberIdx");
 
     if (token) {
+      localStorage.removeItem("memberIdx");
+      localStorage.removeItem("accessToken");
+
       localStorage.setItem("accessToken", token);
-      if (memberIdx) localStorage.setItem("memberIdx", memberIdx);
       localStorage.setItem("role", "USER");
+
+      if (memberIdx) {
+        localStorage.setItem("memberIdx", memberIdx);
+        console.log("새로 저장된 memberIdx:", memberIdx); // 로그로 확인
+      }
 
       navigate("/"); // 메인으로 이동
       window.location.reload();
