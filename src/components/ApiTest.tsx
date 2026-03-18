@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { postApi, authApi } from "../api";
 import type { PostListRes } from "../types";
 import { useNavigate } from "react-router-dom";
 
 export const ApiTest = () => {
+  const [currentPage, setCurrentPage] = useState(0); // 백엔드 Pageable은 0부터 시작
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10;
+
   const navigate = useNavigate();
   const [posts, setPosts] = useState<PostListRes[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,17 +33,19 @@ export const ApiTest = () => {
     }
   };
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page: number = 0) => {
     setLoading(true);
     try {
-      const res = await postApi.getPosts({ page: 0, size: 10 });
+      // 이제 인자로 받은 page를 api 호출에 사용합니다.
+      const res = await postApi.getPosts({ page, size: 10 });
 
-      // 백엔드 응답이 { result: true, data: { content: [...] } } 구조이므로
-      // axios의 res.data 안의 data 안의 content를 가져와야 합니다.
       const actualData = res.data.data.content;
+      const totalPages = res.data.data.totalPages; // 백엔드에서 주는 전체 페이지 수
 
       if (actualData) {
         setPosts(actualData);
+        setTotalPages(totalPages); // totalPages 상태도 업데이트 해주세요!
+        setCurrentPage(page); // 현재 페이지 상태 저장
       }
     } catch (err) {
       console.error("목록 로딩 에러:", err);
@@ -78,6 +84,10 @@ export const ApiTest = () => {
     }
   };
 
+  useEffect(() => {
+    fetchPosts(0);
+  }, []);
+
   return (
     <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-8">
@@ -107,7 +117,7 @@ export const ApiTest = () => {
                 🔓 로그아웃
               </button>
               <button
-                onClick={fetchPosts}
+                onClick={() => fetchPosts}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow"
               >
                 🔄 게시물 불러오기
@@ -127,7 +137,7 @@ export const ApiTest = () => {
                 🔑 로그인 / 회원가입 하러가기
               </button>
               <button
-                onClick={fetchPosts}
+                onClick={() => fetchPosts}
                 className="px-8 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition font-bold"
               >
                 🔄 비회원으로 목록 보기
@@ -197,6 +207,41 @@ export const ApiTest = () => {
               )}
             </tbody>
           </table>
+          {/* 🔹 페이지네이션 컨트롤 UI */}
+          {totalPages > 0 && (
+            <div className="flex justify-center items-center gap-2 py-6 border-t border-gray-100 bg-gray-50/50">
+              <button
+                disabled={currentPage === 0}
+                onClick={() => fetchPosts(currentPage - 1)}
+                className="px-3 py-1 rounded border bg-white text-gray-600 disabled:opacity-30 hover:bg-gray-50 transition"
+              >
+                이전
+              </button>
+
+              {/* 페이지 번호 버튼 */}
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => fetchPosts(i)}
+                  className={`w-8 h-8 rounded-md text-sm font-medium transition-all ${
+                    currentPage === i
+                      ? "bg-blue-600 text-white shadow-md scale-110"
+                      : "bg-white text-gray-600 border border-gray-200 hover:bg-blue-50"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                disabled={currentPage === totalPages - 1}
+                onClick={() => fetchPosts(currentPage + 1)}
+                className="px-3 py-1 rounded border bg-white text-gray-600 disabled:opacity-30 hover:bg-gray-50 transition"
+              >
+                다음
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
