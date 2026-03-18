@@ -14,6 +14,7 @@ export const PostDetail = () => {
   const [comments, setComments] = useState<any[]>([]);
   const [commentContent, setCommentContent] = useState("");
   const [commentFiles, setCommentFiles] = useState<File[]>([]);
+  const [totalComments, setTotalComments] = useState(0);
 
   const myMemberIdx = localStorage.getItem("memberIdx")
     ? Number(localStorage.getItem("memberIdx"))
@@ -26,6 +27,8 @@ export const PostDetail = () => {
     try {
       const response = await commentApi.getComments(Number(id));
       const commentList = response.data.data?.content || [];
+      const total = response.data.data?.totalElements || 0;
+      setTotalComments(total);
       setComments(commentList);
     } catch (err) {
       console.error("댓글 로딩 실패:", err);
@@ -178,7 +181,7 @@ export const PostDetail = () => {
 
       {/* 댓글 섹션 */}
       <div className="mt-10 border-t pt-8">
-        <h3 className="font-bold text-lg mb-4">댓글 {comments.length}개</h3>
+        <h3 className="font-bold text-lg mb-4">댓글 {totalComments}개</h3>
 
         {/* 메인 댓글 입력 영역 */}
         <div className="flex flex-col gap-2 mb-8 border p-4 rounded-lg bg-gray-50">
