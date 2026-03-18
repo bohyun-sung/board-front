@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 export const ApiTest = () => {
   const [currentPage, setCurrentPage] = useState(0); // 백엔드 Pageable은 0부터 시작
   const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 10;
 
   const navigate = useNavigate();
   const [posts, setPosts] = useState<PostListRes[]>([]);
